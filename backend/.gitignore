@@ -1,2 +1,4 @@
 node_modules
 hashPwd.js
+
+.env
