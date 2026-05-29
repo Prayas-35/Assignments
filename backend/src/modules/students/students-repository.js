@@ -18,7 +18,7 @@ const findAllStudents = async (payload) => {
             t1.is_active AS "systemAccess"
         FROM users t1
         LEFT JOIN user_profiles t3 ON t1.id = t3.user_id
-        WHERE t1.role_id = 3`;
+        WHERE t1.role_id = 3 AND t1.is_deleted = false`;
     let queryParams = [];
     if (name) {
         query += ` AND t1.name = $${queryParams.length + 1}`;
@@ -77,7 +77,7 @@ const findStudentDetail = async (id) => {
         FROM users u
         LEFT JOIN user_profiles p ON u.id = p.user_id
         LEFT JOIN users r ON u.reporter_id = r.id
-        WHERE u.id = $1`;
+        WHERE u.id = $1 AND u.is_deleted = false`;
     const queryParams = [id];
     const { rows } = await processDBRequest({ query, queryParams });
     return rows[0];
@@ -111,11 +111,34 @@ const findStudentToUpdate = async (paylaod) => {
     return rows;
 }
 
+const deleteStudentById = async (id) => {
+    const { db } = require("../../config");
+    const client = await db.connect();
+    try {
+        await client.query("BEGIN");
+        // Clear active sessions
+        await client.query("DELETE FROM user_refresh_tokens WHERE user_id = $1", [id]);
+        // Soft delete student user
+        const { rowCount } = await client.query(
+            "UPDATE users SET is_deleted = true, is_active = false WHERE id = $1 AND role_id = 3",
+            [id]
+        );
+        await client.query("COMMIT");
+        return rowCount > 0;
+    } catch (error) {
+        await client.query("ROLLBACK");
+        throw error;
+    } finally {
+        client.release();
+    }
+}
+
 module.exports = {
     getRoleId,
     findAllStudents,
     addOrUpdateStudent,
     findStudentDetail,
     findStudentToSetStatus,
-    findStudentToUpdate
+    findStudentToUpdate,
+    deleteStudentById
 };

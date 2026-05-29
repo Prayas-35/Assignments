@@ -29,5 +29,6 @@ export const menuItemTexts: Record<string, string> = {
   APPROVE_NOTICE: 'Approve Notice',
   REJECT_NOTICE: 'Reject Notice',
   DELETE_NOTICE: 'Delete Notice',
-  DELETE_NOTICE_BY_SELF: 'Delete Notice'
+  DELETE_NOTICE_BY_SELF: 'Delete Notice',
+  DELETE_STUDENT: 'Delete Student'
 };

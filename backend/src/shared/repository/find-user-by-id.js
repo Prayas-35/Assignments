@@ -9,7 +9,7 @@ const findUserById = async (id) => {
             password,
             is_active,
             is_email_verified
-        FROM users where id = $1
+        FROM users where id = $1 AND is_deleted = false
     `;
     const queryParams = [id];
     const { rows } = await processDBRequest({ query, queryParams });
