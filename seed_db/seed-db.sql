@@ -105,6 +105,11 @@ VALUES
 ('Update notice detail', '/api/v1/notices/:id', NULL, 'communication_parent', NULL, 'api', 'PUT'),
 -- end communication
 
+-- start certificates
+('Certificates', 'certificates_parent', 'communication.svg', NULL, 8, 'menu-screen', NULL),
+('Certificate Registry', 'certificates', NULL, 'certificates_parent', 1, 'menu-screen', NULL),
+-- end certificates
+
 -- start hr
 ('Human Resource', 'hr_parent', 'hr.svg', NULL, 6, 'menu-screen', NULL),
 ('Staff List', 'staffs', NULL, 'hr_parent', 1, 'menu-screen', NULL),

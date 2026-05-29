@@ -1,5 +1,5 @@
 const { ApiError, sendAccountVerificationEmail } = require("../../utils");
-const { findAllStudents, findStudentDetail, findStudentToSetStatus, addOrUpdateStudent } = require("./students-repository");
+const { findAllStudents, findStudentDetail, findStudentToSetStatus, addOrUpdateStudent, deleteStudentById } = require("./students-repository");
 const { findUserById } = require("../../shared/repository");
 
 const checkStudentId = async (id) => {
@@ -35,7 +35,7 @@ const addNewStudent = async (payload) => {
     try {
         const result = await addOrUpdateStudent(payload);
         if (!result.status) {
-            throw new ApiError(500, result.message);
+            throw new ApiError(500, result.description ? `${result.message}: ${result.description}` : result.message);
         }
 
         try {
@@ -45,14 +45,17 @@ const addNewStudent = async (payload) => {
             return { message: ADD_STUDENT_AND_BUT_EMAIL_SEND_FAIL }
         }
     } catch (error) {
-        throw new ApiError(500, "Unable to add student");
+        if (error instanceof ApiError) {
+            throw error;
+        }
+        throw new ApiError(500, error.message || "Unable to add student");
     }
 }
 
 const updateStudent = async (payload) => {
     const result = await addOrUpdateStudent(payload);
     if (!result.status) {
-        throw new ApiError(500, result.message);
+        throw new ApiError(500, result.description ? `${result.message}: ${result.description}` : result.message);
     }
 
     return { message: result.message };
@@ -69,10 +72,22 @@ const setStudentStatus = async ({ userId, reviewerId, status }) => {
     return { message: "Student status changed successfully" };
 }
 
+const deleteStudent = async (id) => {
+    await checkStudentId(id);
+
+    const success = await deleteStudentById(id);
+    if (!success) {
+        throw new ApiError(500, "Unable to delete student");
+    }
+
+    return { message: "Student deleted successfully" };
+}
+
 module.exports = {
     getAllStudents,
     getStudentDetail,
     addNewStudent,
     setStudentStatus,
     updateStudent,
+    deleteStudent,
 };

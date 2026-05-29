@@ -2,7 +2,7 @@ const { db } = require("../../config");
 const { processDBRequest } = require("../../utils");
 
 const findUserByUsername = async (username, client) => {
-    const query = "SELECT * FROM users WHERE email = $1";
+    const query = "SELECT * FROM users WHERE email = $1 AND is_deleted = false";
     const { rows } = await client.query(query, [username]);
     return rows[0];
 };
@@ -19,7 +19,7 @@ const findUserByRefreshToken = async (refreshToken) => {
         SELECT u.* 
         FROM users u
         JOIN user_refresh_tokens rt ON u.id = rt.user_id
-        WHERE rt.token = $1`;
+        WHERE rt.token = $1 AND u.is_deleted = false`;
     const { rows } = await db.query(query, [refreshToken]);
     return rows[0];
 };
